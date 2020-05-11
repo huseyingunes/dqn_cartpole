@@ -38,10 +38,11 @@ if __name__ == "main":
     for e in range(episodes):
         #initialize environment
         state = env.reset()
+        state = np.reshape(state, [1, 4])
         time = 0 # zaman en kadar çok geçerse o kadar balarılı çünkü her zamanda 1 ödül alacak
         while True:
-
             #act
+            agent.act(state)
 
             #step
 
