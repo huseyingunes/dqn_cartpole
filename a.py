@@ -49,11 +49,30 @@ class DQLAgent:
 
     def act(self, state):
         # eylem
-        pass
+        if random.uniform(0, 1) <= self.epsilon:
+            # rastgele üretilen 0-1 aralığındaki değer epsilondan küçükse yeni denemeler yap
+            return env.action_space.sample() # rastgele bir eymel üret ve onu yap anlamında
+        else:
+            # eğer epsilondan küçükse eski tecrübelerden faydalan
+            act_values = self.model.predict(state) # yapay sinir ağı tahminde bulunuyor
+            return np.argmax(act_values[0])
+
 
     def replay(self, batch_size): #batch_size ->kaç tane geçmiş veriden faydalanacağımız
-        #eğitim
-        pass
+        # eğitim
+        # eğitim yapılabilmesi için bathc_size kadar hafızada kayıt bulunması gerekiyor
+        if len(self.memory) < batch_size:
+            return
+        mini_batch = random.sample(self.memory, batch_size)
+        # hafızadan batch_size kadar rastgele seçiyoruz
+        for state, action, reward, next_state, done in mini_batch:
+            if done:
+                target = reward
+            else:
+                target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
+            train_target = self.model.predict(state)
+            train_target[0][action] = target
+            self.model.fit(state, train_target, verbose=0) # verbose birşey göstermesin diye
 
     def adaptiveEGreedy(self):
         if self.epsilon > self.epsilon_min:
