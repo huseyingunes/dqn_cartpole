@@ -32,8 +32,9 @@ class DQLAgent:
 if __name__ == "main":
 
     env = gym.make("CartPole-v0")
-    agent = DQLAgent(env)
+    agent = DQLAgent(env) # ortam için ajanı üret ve ilk pozisyonunu al
 
+    batch_size = 16
     episodes = 100
     for e in range(episodes):
         #initialize environment
@@ -42,15 +43,20 @@ if __name__ == "main":
         time = 0 # zaman en kadar çok geçerse o kadar balarılı çünkü her zamanda 1 ödül alacak
         while True:
             #act
-            agent.act(state)
+            action = agent.act(state) # eylemi seç
 
             #step
+            next_state, reward, done, _ = env.step(action)
+            next_state = np.reshape(next_state, [1, 4])
 
             #remember
+            agent.remember(state, action, reward, next_state, done)
 
-            #update step
+            #update state
+            state = next_state
 
             #replay
+            agent.replay(batch_size) # rastgele batch_size ı kullanacak
 
             #adjust epsilon
 
