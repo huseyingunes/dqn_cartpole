@@ -8,15 +8,44 @@ import random
 
 class DQLAgent:
     def __init__(self, env):
-        self.state_size =
+        self.state_size = env.observation_space.shape[0] # notlarda yazan observations 0,1,2,3
+        self.action_size = env.action_space.n # notlarda yazan eylemler 0,1
+
+        self.gamma = 0.95 # gelecekteki ödüle mi odaklanmalıyım yoksa elimdeki ile mi yetinmeliyim
+        self.learning_rate = 0.001 # öğrenme hızını belirler
+        # bu 2 değerde dqn denkleminin parametreleridir
+
+        self.epsilon = 1 # başlangıçta her yeri ara demek, her yeri keşfedebilirsin
+        self.epsilon_decay = 0.995 # epsilonu azaltacağız sürekli yeni yer aramasın, epsilon ile bu değeri çarpacağız
+        self.epsilon_min = 0.01 # buraya kadar düşecek, burdan aşağı düşmeyecek
+                                # böylece her zaman yeni yerleri arama ihtimali olacak
+
+        self.memory = deque(maxlen = 1000) # bu liste dolarsa ilk giren atılır son giren eklenir
+        #bu hafızamız oluyor
+
+        self.model = self.build_model() # ajanın yapay sinir ağı modeli (resimden bakabilirsin)
 
     def build_model(self):
         # ann modeli burada tanımlanacak
-        pass
+        model = Sequential() # keras ile ann ekleniyor
+        model.add(Dense(48, input_dim = self.state_size, activation="tanh")) # ANN'ye layer ekliyoruz
+        # Bu katmanda 48 nöron olacak
+        # aktivasyon fonksiyonu da tanh olsun
+        model.add(Dense(self.action_size)) # ANN'ye output player ekliyoruz
+        # sonuç olarak ANN'nin çıktısı eylem ne yapılacaksa o olacak
+        model.compile(loss="mse", optimizer=Adam(lr=self.learning_rate))
+            # “Loss” gerçek değerin tahmin değerinden ne kadar farklı olduğunu göstermektedir.
+            # MSE (Mean Squared Error) yani Ortalama Standart Hata en çok kullanılan “Loss” metriklerin biridir.
+            # Ortalama standart hata gerçek (doğru) ve tahmin değerleri arasındaki farkı gösteren bir metriktir.
+                # Bu bağlamda, hesaplanırken tüm gerçek değerler tahmin edilen değerilerden çıkartılarak karesi alınır ve toplanır.
+
+            # optimizer olarak adaptive momentum kullanılıyor
+            # https://keras.io/api/optimizers/adam/ - https://arxiv.org/abs/1412.6980
+        return model
 
     def remember(self, state, action, reward, next_state, done):
         # hafıza -> bilgileri burada depolayacağız
-        pass
+        self.memory.append(state, action, reward, next_state, done)
 
     def act(self, state):
         # eylem
@@ -27,7 +56,8 @@ class DQLAgent:
         pass
 
     def adaptiveEGreedy(self):
-        pass
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
 
 if __name__ == "main":
 
