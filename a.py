@@ -8,7 +8,7 @@ import random
 
 class DQLAgent:
     def __init__(self, env):
-        pass
+        self.state_size =
 
     def build_model(self):
         # ann modeli burada tanımlanacak
