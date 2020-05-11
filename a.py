@@ -59,6 +59,10 @@ if __name__ == "main":
             agent.replay(batch_size) # rastgele batch_size ı kullanacak
 
             #adjust epsilon
+            agent.adaptiveEGreedy()
+
+            time += 1
 
             if done:
+                print("Episode: {}, time: {}".format(e, time))
                 break
